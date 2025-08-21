@@ -2,8 +2,18 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Введите текст и нажмите <Enter>: ");
-        String text = new Scanner(System.in).nextLine();
-        System.out.println("Длина текста: " + text.length());
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Введите первое число:");
+        int a = sc.nextInt();
+        System.out.println("Введите второе число");
+        int b = sc.nextInt();
+
+
+        System.out.println("Сумма: " + (a + b));
+        System.out.println("Разница: " + (a - b));
+        System.out.println("Произведение: " + (a * b));
+        System.out.println("Частное: " + ((double)a / b));
+
+
     }
 }
