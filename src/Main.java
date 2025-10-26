@@ -32,8 +32,6 @@ public class Main {
                 continue;
             }
 
-            int maxLength = Integer.MIN_VALUE;
-            int minLength = Integer.MAX_VALUE;
             int totalLines = 0;
 
 
@@ -68,7 +66,8 @@ public class Main {
             for (int i = 0; i < logMap.size(); i++) {
                 String entry = logMap.get(i).get("userAgent");
 
-                /*if (entry.contains("Googlebot")) gCount++;
+                /* вариант, считающий все строки с googlebot и yandexbot, не только в первых скобках
+                if (entry.contains("Googlebot")) gCount++;
                 if (entry.contains("YandexBot")) yCount++;*/
 
                 //выделяем часть в первых скобках
@@ -77,9 +76,9 @@ public class Main {
                 //если в запросе первые скобки и контент в них, парсим контент
                 if (firstBracketsMatch.find()) {
                     String firstBrackets = firstBracketsMatch.group(1);
-                    String[] parts = firstBrackets.split(";\\s*");
+                    String[] parts = firstBrackets.split(";");
                     if (parts.length >= 2) {
-                        String fragment = parts[1];
+                        String fragment = parts[1].trim(); //очищаем от пробелов
                         fragment = fragment.split("/")[0]; //берем часть до слэша
                         if (fragment.equals("Googlebot")) gCount++;
                         if (fragment.equals("YandexBot")) yCount++;
@@ -90,7 +89,7 @@ public class Main {
             }
 
             //выводим счетчики
-            System.out.println("Общее количество запросов: " + totalLines + 1);
+            System.out.println("Общее количество запросов: " + totalLines);
             System.out.println("- - -");
             System.out.println("Запросы от YandexBot: " + yCount);
             System.out.println("Запросы от Googlebot: " + gCount);
