@@ -49,10 +49,7 @@ public class Main {
                     logMap.put(totalLines, parsed);
                     st.addEntry(parsed);
                     totalLines++;
-                    if (totalLines > 50) {
-                        System.out.println(st);
-                        break;
-                    }
+
 
                 }
 

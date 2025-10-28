@@ -3,7 +3,7 @@ import java.time.LocalDateTime;
 
 
 public class Statistics {
-    private double totalTraffic;
+    private long totalTraffic;
     private LocalDateTime minTime, maxTime;
 
     public Statistics() {
@@ -33,7 +33,7 @@ public class Statistics {
 
     }
 
-    public double getTotalTraffic() {
+    public long getTotalTraffic() {
         return totalTraffic;
     }
 
