@@ -23,13 +23,13 @@ public class Statistics {
         return totalTraffic / diff;
     }
 
-    public int getTrafficRateBeautified() {
+    public String getTrafficRateBeautified() {
         double tr = getTrafficRate();
         int gb = (int) (tr / 1073741824);
         int mb = (int) (tr - gb * 1073741824) / 1048576;
         int kb = (int) (tr - gb * 1073741824 - mb * 1048576) / 1024;
         int b = (int) (tr - gb * 1073741824 - mb * 1048576 - kb * 1024);
-
+        return gb + " GB, " + mb + " MB, " + kb + " KB, " + b + " B";
 
     }
 
@@ -51,7 +51,7 @@ public class Statistics {
                 "totalTraffic=" + totalTraffic +
                 ", minTime=" + minTime +
                 ", maxTime=" + maxTime +
-                ", traffic/hour=" + getTrafficRate() +
+                ", traffic/hour=" + getTrafficRateBeautified() +
                 '}';
     }
 }
