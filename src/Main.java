@@ -53,6 +53,7 @@ public class Main {
 
                 }
 
+
             } catch (Exception ex) {
 
                 ex.printStackTrace();
@@ -100,6 +101,9 @@ public class Main {
 //            System.out.println("Доля запросов от YandexBot: " + yPercent + " %");
 //            double gPercent = (double) gCount / totalLines * 100;
 //            System.out.println("Доля запросов от Googlebot: " + gPercent + " %");
+
+            System.out.println(st.getOSFrequency().toString());
+            System.out.println(st.getOSFrequencyDetailed().toString());
             System.out.println(st);
             break;
         }

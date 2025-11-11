@@ -17,8 +17,9 @@ public class UserAgent {
             String firstBrackets = firstBracketsMatch.group(1);
             String[] parts = firstBrackets.split(";");
             if (parts.length >= 2) {
-                String fragment = parts[1].trim(); //очищаем от пробелов
-                this.OS = fragment.split("/")[0]; //берем часть до слэша
+                String fragment = parts[0].trim(); //очищаем от пробелов
+                this.OS = fragment;
+                //this.OS = fragment.split("/")[0]; //берем часть до слэша
             } else {
                 this.OS = "";
             }
