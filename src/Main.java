@@ -103,7 +103,8 @@ public class Main {
 //            System.out.println("Доля запросов от Googlebot: " + gPercent + " %");
 
             System.out.println(st.getOSFrequency().toString());
-            System.out.println(st.getOSFrequencyDetailed().toString());
+            System.out.println(st.getBrowserFrequency().toString());
+
             System.out.println(st);
             break;
         }

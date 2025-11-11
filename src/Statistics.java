@@ -9,8 +9,10 @@ import java.util.Objects;
 public class Statistics {
     private long totalTraffic;
     private LocalDateTime minTime, maxTime;
-    private HashSet<String> pages = new HashSet<>();
+    private HashSet<String> pages200 = new HashSet<>();
+    private HashSet<String> pages404 = new HashSet<>();
     private HashMap<String, Integer> OSFrequency = new HashMap<>();
+    private HashMap<String, Integer> browserFrequency = new HashMap<>();
 
     public Statistics() {
         this.totalTraffic = 0;
@@ -25,12 +27,19 @@ public class Statistics {
         if (this.minTime.isAfter(entry.getTime())) this.minTime = entry.getTime();
         if (this.maxTime.isBefore(entry.getTime())) this.maxTime = entry.getTime();
 
-        if (entry.getResponseCode() == 200) this.pages.add(entry.getPath());
+        if (entry.getResponseCode() == 200) this.pages200.add(entry.getPath());
+        if (entry.getResponseCode() == 404) this.pages404.add(entry.getPath());
 
         if (this.OSFrequency.containsKey(entry.getUserAgent().getOS()) && !Objects.equals(entry.getUserAgent().getOS(), "")) {
-            this.OSFrequency.replace(entry.getUserAgent().getOS(), OSFrequency.get(entry.getUserAgent().getOS()), OSFrequency.get(entry.getUserAgent().getOS()) + 1);
+            this.OSFrequency.replace(entry.getUserAgent().getOS(), OSFrequency.get(entry.getUserAgent().getOS()) + 1);
         } else if (!Objects.equals(entry.getUserAgent().getOS(), "")) {
             this.OSFrequency.put(entry.getUserAgent().getOS(), 1);
+        }
+
+        if (this.browserFrequency.containsKey(entry.getUserAgent().getBrowser()) && !Objects.equals(entry.getUserAgent().getBrowser(), "")) {
+            this.browserFrequency.replace(entry.getUserAgent().getBrowser(), browserFrequency.get(entry.getUserAgent().getBrowser()) + 1);
+        } else if (!Objects.equals(entry.getUserAgent().getBrowser(), "")) {
+            this.browserFrequency.put(entry.getUserAgent().getBrowser(), 1);
         }
     }
 
@@ -42,6 +51,31 @@ public class Statistics {
         HashMap<String, Double> out = new HashMap<>();
 
         for (Map.Entry<String, Integer> entry : OSFrequency.entrySet()) {
+            String k = entry.getKey();
+            double v = (double) entry.getValue() / totalCount;
+            if (v > 0.02) {
+                out.put(k, v);
+            } else if (out.containsKey("Other")){
+                double tempv = out.get("Other");
+                out.replace("Other", tempv + v);
+            } else {
+                out.put("Other", v);
+            }
+
+        }
+
+        return out;
+
+    }
+
+    public HashMap<String, Double> getBrowserFrequency() {
+        int totalCount = 0;
+        for (Map.Entry<String, Integer> entry : browserFrequency.entrySet()) {
+            totalCount += entry.getValue();
+        }
+        HashMap<String, Double> out = new HashMap<>();
+
+        for (Map.Entry<String, Integer> entry : browserFrequency.entrySet()) {
             String k = entry.getKey();
             double v = (double) entry.getValue() / totalCount;
             if (v > 0.02) {
@@ -105,9 +139,14 @@ public class Statistics {
         return maxTime;
     }
 
-    public HashSet<String> getPages() {
+    public HashSet<String> getPages200() {
 
-        return pages;
+        return pages200;
+    }
+
+    public HashSet<String> getPages404() {
+
+        return pages404;
     }
 
 
