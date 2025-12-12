@@ -7,17 +7,20 @@ import java.util.Objects;
 
 
 public class Statistics {
-    private long totalTraffic;
+    private long totalTraffic, realUserVisitCount, errorCount;
     private LocalDateTime minTime, maxTime;
     private HashSet<String> pages200 = new HashSet<>();
     private HashSet<String> pages404 = new HashSet<>();
+    private HashSet<String> realUserIPs = new HashSet<>();
     private HashMap<String, Integer> OSFrequency = new HashMap<>();
     private HashMap<String, Integer> browserFrequency = new HashMap<>();
+
 
     public Statistics() {
         this.totalTraffic = 0;
         this.minTime = LocalDateTime.MAX;
         this.maxTime = LocalDateTime.MIN;
+        this.realUserVisitCount = 0;
     }
 
     public void addEntry(LogEntry entry) {
@@ -29,6 +32,8 @@ public class Statistics {
 
         if (entry.getResponseCode() == 200) this.pages200.add(entry.getPath());
         if (entry.getResponseCode() == 404) this.pages404.add(entry.getPath());
+        if (entry.getResponseCode() >= 400 && entry.getResponseCode() < 600) errorCount++;
+
 
         if (this.OSFrequency.containsKey(entry.getUserAgent().getOS()) && !Objects.equals(entry.getUserAgent().getOS(), "")) {
             this.OSFrequency.replace(entry.getUserAgent().getOS(), OSFrequency.get(entry.getUserAgent().getOS()) + 1);
@@ -41,6 +46,14 @@ public class Statistics {
         } else if (!Objects.equals(entry.getUserAgent().getBrowser(), "")) {
             this.browserFrequency.put(entry.getUserAgent().getBrowser(), 1);
         }
+
+
+        if (!entry.getUserAgent().isBot()) {
+            realUserVisitCount++;
+            this.realUserIPs.add(entry.getIpAddr());
+        }
+
+
     }
 
     public HashMap<String, Double> getOSFrequency() {
@@ -112,9 +125,13 @@ public class Statistics {
 
     }
 
+    public double getLogDuration() {
+        if (minTime.equals(maxTime)) throw new IllegalArgumentException("Cannot compute duration because log start and end times are the same");
+        return Duration.between(minTime, maxTime).toSeconds() / 3600.0;
+    }
+
     public double getTrafficRate() {
-        double diff = Duration.between(minTime, maxTime).toSeconds() / 3600.0;
-        return totalTraffic / diff;
+        return totalTraffic / getLogDuration();
     }
 
     public String getTrafficRateBeautified() {
@@ -125,6 +142,19 @@ public class Statistics {
         int b = (int) (tr - gb * 1073741824 - mb * 1048576 - kb * 1024);
         return gb + " GB, " + mb + " MB, " + kb + " KB, " + b + " B";
 
+    }
+
+    public double getVisitsRate() {
+        return realUserVisitCount / getLogDuration();
+    }
+
+    public double getAverageErrors() {
+        return errorCount / getLogDuration();
+    }
+
+    public double getAverageVisitsPerUser() {
+        if (realUserIPs.isEmpty()) return 0;
+        return (double) realUserVisitCount / realUserIPs.size();
     }
 
     public long getTotalTraffic() {

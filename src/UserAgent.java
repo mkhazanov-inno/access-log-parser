@@ -3,6 +3,7 @@ import java.util.regex.Pattern;
 
 public class UserAgent {
     private final String browser, OS;
+    private boolean isBot;
     //userAgent             11      Mozilla/5.0 (compatible; MegaIndex.ru/2.0; +http://megaindex.com/crawler)
 
     public UserAgent(String line) {
@@ -27,6 +28,12 @@ public class UserAgent {
         } else {
             this.OS = "";
         }
+
+        isBot = line.toLowerCase().contains("bot");
+    }
+
+    public boolean isBot() {
+        return isBot;
     }
 
     public String getBrowser() {
@@ -35,6 +42,10 @@ public class UserAgent {
 
     public String getOS() {
         return OS;
+    }
+
+    public String getRaw() {
+        return raw;
     }
 
     @Override
