@@ -1,5 +1,7 @@
+import java.net.URI;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -12,8 +14,11 @@ public class Statistics {
     private HashSet<String> pages200 = new HashSet<>();
     private HashSet<String> pages404 = new HashSet<>();
     private HashSet<String> realUserIPs = new HashSet<>();
+    private HashSet<String> referers = new HashSet<>();
     private HashMap<String, Integer> OSFrequency = new HashMap<>();
     private HashMap<String, Integer> browserFrequency = new HashMap<>();
+    private HashMap<LocalDateTime, Integer> visitsPerSecond = new HashMap<>();
+    private HashMap<String, Integer> visitsPerIP = new HashMap<>();
 
 
     public Statistics() {
@@ -24,7 +29,6 @@ public class Statistics {
     }
 
     public void addEntry(LogEntry entry) {
-
         this.totalTraffic += entry.getResponseSize();
 
         if (this.minTime.isAfter(entry.getTime())) this.minTime = entry.getTime();
@@ -34,8 +38,11 @@ public class Statistics {
         if (entry.getResponseCode() == 404) this.pages404.add(entry.getPath());
         if (entry.getResponseCode() >= 400 && entry.getResponseCode() < 600) errorCount++;
 
+        OSFrequency.merge(entry.getUserAgent().getOS(), 1,  (a, b) -> a + b);
+        browserFrequency.merge(entry.getUserAgent().getBrowser(), 1, (a, b) -> a + b);
+        referers.add(entry.getReferer().transform(ref -> URI.create(ref).getHost()));
 
-        if (this.OSFrequency.containsKey(entry.getUserAgent().getOS()) && !Objects.equals(entry.getUserAgent().getOS(), "")) {
+      /*  if (this.OSFrequency.containsKey(entry.getUserAgent().getOS()) && !Objects.equals(entry.getUserAgent().getOS(), "")) {
             this.OSFrequency.replace(entry.getUserAgent().getOS(), OSFrequency.get(entry.getUserAgent().getOS()) + 1);
         } else if (!Objects.equals(entry.getUserAgent().getOS(), "")) {
             this.OSFrequency.put(entry.getUserAgent().getOS(), 1);
@@ -45,12 +52,17 @@ public class Statistics {
             this.browserFrequency.replace(entry.getUserAgent().getBrowser(), browserFrequency.get(entry.getUserAgent().getBrowser()) + 1);
         } else if (!Objects.equals(entry.getUserAgent().getBrowser(), "")) {
             this.browserFrequency.put(entry.getUserAgent().getBrowser(), 1);
-        }
+        } */
 
 
         if (!entry.getUserAgent().isBot()) {
             realUserVisitCount++;
             this.realUserIPs.add(entry.getIpAddr());
+            visitsPerSecond.merge(entry.getTime(), 1, (a, b) -> a + b);
+            visitsPerIP.merge(entry.getIpAddr(), 1, (a, b) -> a + b);
+            //long a = entry.getTime().toEpochSecond(ZoneOffset.ofHours(0));
+            //LocalDateTime b = LocalDateTime.ofEpochSecond(a, 0, ZoneOffset.ofHours(0));
+
         }
 
 
@@ -159,6 +171,18 @@ public class Statistics {
 
     public long getTotalTraffic() {
         return totalTraffic;
+    }
+
+    public int getPeakVisitsPerSecond() {
+        return visitsPerSecond.values().stream().max(Integer::compareTo).orElse(0);
+    }
+
+    public HashSet<String> getReferers() {
+        return referers;
+    }
+
+    public int getPeakVisitsPerIP() {
+        return visitsPerIP.values().stream().max(Integer::compareTo).orElse(0);
     }
 
     public LocalDateTime getMinTime() {
